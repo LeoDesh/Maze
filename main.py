@@ -39,8 +39,8 @@ def main():
     random.seed(4)
     maze = get_maze_text()
     # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
-    width = 4
-    length = 6
+    width = 8
+    length = 12
     maze_generator = DFSMaze(width, length)
     maze_list = maze_generator.create_maze()
     maze = Maze(maze_list)

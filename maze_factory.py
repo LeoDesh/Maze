@@ -23,9 +23,10 @@ def update_turning_points(turning_points, visited_cells, cells_neighbours):
         index = 0
         neighbour_list = cells_neighbours[point]._neighbours
         size = len(neighbour_list)
-        for value in neighbour_list.values():
+        for key, value in dict(neighbour_list).items():
             if value in visited_cells:
                 index += 1
+                del neighbour_list[key]
         if size == index:
             turning_points.remove(point)
 
