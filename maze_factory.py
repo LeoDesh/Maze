@@ -43,16 +43,6 @@ def inverse_move(move: str):
         raise ValueError(f"{move} is an invalid input!")
 
 
-def update_step(current_point: tuple, cells_dict: dict, walls_dict: dict):
-    key = random.choice(list(cells_dict[current_point]._neighbours.keys()))
-    next_point = cells_dict[current_point]._neighbours[key]
-    wall_point = add_tuples(current_point, MazeFactory.wall_directions[key])
-    cells_dict[wall_point] = walls_dict[wall_point]
-    del walls_dict[wall_point]
-    del cells_dict[current_point]._neighbours[key]
-    return next_point
-
-
 class MazeFactory(ABC):
     directions = {"up": (-2, 0), "down": (2, 0), "right": (0, 2), "left": (0, -2)}
     wall_directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
@@ -106,7 +96,7 @@ class DFSMaze(MazeFactory):
             elif size == 1:
                 if current_point in turning_points:
                     turning_points.remove(current_point)
-                next_point = update_step(current_point, self._cells, self._walls)
+                next_point = self.update_step(current_point)
                 self._visited_cells.append(next_point)
                 logger.debug(
                     f"Current Point {current_point} has 1 neighbour! Next Point {next_point}"
@@ -114,7 +104,8 @@ class DFSMaze(MazeFactory):
             else:
                 if current_point not in turning_points:
                     turning_points.append(current_point)
-                next_point = update_step(current_point, self._cells, self._walls)
+
+                next_point = self.update_step(current_point)
                 self._visited_cells.append(next_point)
                 logger.debug(
                     f"Current Point {current_point} has more than 1 neighbour! Next Point {next_point}"
@@ -122,6 +113,16 @@ class DFSMaze(MazeFactory):
 
             current_point = next_point
             update_turning_points(turning_points, self._visited_cells, self._cells)
+        # toDo return Maze as List Form
+
+    def update_step(self, current_point: tuple) -> tuple:
+        key = random.choice(list(self._cells[current_point]._neighbours.keys()))
+        next_point = self._cells[current_point]._neighbours[key]
+        wall_point = add_tuples(current_point, self.wall_directions[key])
+        self._cells[wall_point] = self._walls[wall_point]
+        del self._walls[wall_point]
+        del self._cells[current_point]._neighbours[key]
+        return next_point
 
     def init_cell_neighbours(self) -> None:
         for coords, cell in self._cells.items():
