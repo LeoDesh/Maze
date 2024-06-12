@@ -106,8 +106,8 @@ class Maze:
     def matplotlib_view(self) -> None:
         fig, ax = plt.subplots()
         ax.pcolormesh([item for item in reversed(self.config)])
-        ax.yaxis.grid(True, color="black", lw=5)
-        ax.xaxis.grid(True, color="black", lw=5)
+        ax.yaxis.grid(True, color="black", lw=2.5)
+        ax.xaxis.grid(True, color="black", lw=2.5)
         ax.set_xticks(range(self._length))
         ax.set_yticks(range(self._width))
         # ax.plot(1.5, 1.5, marker=">")
@@ -179,7 +179,7 @@ def dfs_algorithm(maze: Maze):
 
     path = [values[0] for values in maze_path.values()]
     path.append(end)
-    print(path)
+    return path
 
 
 def remove_coords_from_maze_path(maze_path: dict, current_neighbours: dict) -> None:
@@ -190,21 +190,3 @@ def remove_coords_from_maze_path(maze_path: dict, current_neighbours: dict) -> N
                 key_list.append(key)
     for key in key_list:
         del current_neighbours[key]
-
-
-def main():
-    random.seed(4)
-    maze_map = [[1, 1, 1, 1, 1], [0, 0, 0.25, 0, 0], [0.75, 1, 1, 1, 1]]
-    maze = Maze(maze_map)
-    print(maze)
-
-    # print(maze.represent_cells())
-    # maze.matplotlib_view()
-    # print(random.choice(list(test_dict.keys())))
-
-    maze_solver = MazeSolver(maze=maze, algorithm=dfs_algorithm)
-    maze_solver.solve_maze()
-
-
-if __name__ == "__main__":
-    main()

@@ -4,7 +4,7 @@ from cell import Cell
 import random
 import logging
 
-LOG_FILE = "sample.log"
+LOG_FILE = "sample_factory.log"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -113,7 +113,8 @@ class DFSMaze(MazeFactory):
 
             current_point = next_point
             update_turning_points(turning_points, self._visited_cells, self._cells)
-        # toDo return Maze as List Formfaf
+
+        return self.maze_list()
 
     def update_step(self, current_point: tuple) -> tuple:
         key = random.choice(list(self._cells[current_point]._neighbours.keys()))
@@ -130,14 +131,21 @@ class DFSMaze(MazeFactory):
                 if add_tuples(coords, move) in self._cells:
                     cell._neighbours[key] = add_tuples(coords, move)
 
-
-def main():
-    random.seed(4)
-    width = 3
-    length = 3
-    maze = DFSMaze(width, length)
-    maze.create_maze()
-
-
-if __name__ == "__main__":
-    main()
+    def maze_list(self) -> list:
+        maze = [
+            [-1 for _ in range(2 * self._length - 1)]
+            for _ in range(2 * self._width - 1)
+        ]
+        for coords in self._cells.keys():
+            i, j = coords
+            maze[i - 1][j - 1] = 1
+        for coords in self._walls.keys():
+            i, j = coords
+            maze[i - 1][j - 1] = 0
+        starting_point = random.choice(list(self._cells.keys()))
+        i, j = starting_point
+        maze[i - 1][j - 1] = 0.25
+        end_point = random.choice(list(self._cells.keys()))
+        i, j = end_point
+        maze[i - 1][j - 1] = 0.75
+        return maze

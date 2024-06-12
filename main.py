@@ -1,11 +1,6 @@
-import matplotlib.pyplot as plt
-
-
-def get_maze(length: int, width: int):
-    result = [[0 for _ in range(length)] for _ in range(width)]
-    for i in range(width):
-        result[i][0] = 1
-    return result
+from maze import Maze, MazeSolver, dfs_algorithm
+from maze_factory import DFSMaze
+import random
 
 
 def get_maze_text():
@@ -27,12 +22,32 @@ def generate_maze(length: int, width: int):
     pass
 
 
-def main():
+""" 
+random.seed(4)
     maze = get_maze_text()
     # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
-    print(maze)
-    plt.pcolormesh(maze)
-    plt.show()
+    width = 4
+    length = 6
+    maze_generator = DFSMaze(width, length)
+    maze_list = maze_generator.create_maze()
+    maze = Maze(maze_list)
+
+ """
+
+
+def main():
+    random.seed(4)
+    maze = get_maze_text()
+    # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
+    width = 4
+    length = 6
+    maze_generator = DFSMaze(width, length)
+    maze_list = maze_generator.create_maze()
+    maze = Maze(maze_list)
+    solver = MazeSolver(maze, dfs_algorithm)
+    path = solver.solve_maze()
+    print(path)
+    maze.matplotlib_view()
 
 
 if __name__ == "__main__":
