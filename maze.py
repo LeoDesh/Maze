@@ -17,6 +17,10 @@ class InvalidList(Exception):
     pass
 
 
+def subtract_tuples(t1: tuple, t2: tuple):
+    return tuple(s - t for s, t in zip(t1, t2))
+
+
 def find_value_in_config(value: float, maze_config: list):
     width = len(maze_config)
     length = len(maze_config[0])
@@ -103,14 +107,29 @@ class Maze:
             rep += part_str + "\n"
         return rep
 
-    def matplotlib_view(self) -> None:
+    def matplotlib_view(self, path: list = None) -> None:
         fig, ax = plt.subplots()
         ax.pcolormesh([item for item in reversed(self.config)])
         ax.yaxis.grid(True, color="black", lw=2.5)
         ax.xaxis.grid(True, color="black", lw=2.5)
         ax.set_xticks(range(self._length))
         ax.set_yticks(range(self._width))
-        # ax.plot(1.5, 1.5, marker=">")
+        if path:
+            plt.pause(2.0)
+            path_dict = {value: move for move, value in self.directions.items()}
+            direction_dict = {"right": ">", "left": "<", "up": "^", "down": "v"}
+            plot_dict = {}
+            for index, tup in enumerate(path):
+                if index + 1 < len(path):
+                    plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
+            for coords, direction in plot_dict.items():
+                x, y = coords
+                # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
+                u, v = (y - 0.5), (self._width - x + 0.5)
+                ax.scatter(
+                    x=u, y=v, marker=direction_dict[direction], s=65, c="lightcoral"
+                )
+                plt.pause(0.05)
         plt.show()
 
 

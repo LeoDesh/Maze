@@ -34,20 +34,31 @@ random.seed(4)
 
  """
 
+""" 
+Config long maze:
+random.seed(15)
+    width = 20
+    length = 40
+
+    width = 30
+    length = 60
+
+ """
+
 
 def main():
-    random.seed(4)
-    maze = get_maze_text()
+    random.seed(15)
+    width = 30
+    length = 60
+    # maze = get_maze_text()
     # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
-    width = 8
-    length = 12
+
     maze_generator = DFSMaze(width, length)
     maze_list = maze_generator.create_maze()
     maze = Maze(maze_list)
     solver = MazeSolver(maze, dfs_algorithm)
     path = solver.solve_maze()
-    print(path)
-    maze.matplotlib_view()
+    maze.matplotlib_view(path)
 
 
 if __name__ == "__main__":
