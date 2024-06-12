@@ -113,7 +113,7 @@ class DFSMaze(MazeFactory):
 
             current_point = next_point
             update_turning_points(turning_points, self._visited_cells, self._cells)
-        # toDo return Maze as List Form
+        # toDo return Maze as List Formfaf
 
     def update_step(self, current_point: tuple) -> tuple:
         key = random.choice(list(self._cells[current_point]._neighbours.keys()))
