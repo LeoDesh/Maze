@@ -1,5 +1,6 @@
-from maze.maze import Maze, MazeSolver, dfs_algorithm
+from maze.maze import Maze, MazeSolver, dfs_algorithm, full_path
 from maze.maze_factory import DFSMaze
+import random
 
 
 def read_maze(filename: str = "maze_examples/maze_60_40.txt"):
@@ -20,6 +21,13 @@ def maze_example(width: int = 10, length: int = 20):
     maze.matplotlib_view(path=path, pausing=0.001, marker_size=40)
 
 
+def read_maze_full_path(filename: str = "maze_examples/maze_24_16.txt"):
+    maze = Maze.import_maze(filename)
+    solver = MazeSolver(maze, dfs_algorithm)
+    solver.solve_maze()
+    maze.matplotlib_view(path=full_path(maze.width), pausing=0.001, marker_size=40)
+
+
 def main():
     ## read_maze via files
 
@@ -27,7 +35,11 @@ def main():
 
     ## generate own maze with provided length and width (e.g. 20 and 10)
 
-    maze_example(width=5, length=10)
+    # maze_example(length=20,width=10)
+
+    ## read maze via file, but show all the visited cells of the algorithm
+
+    read_maze_full_path()
     pass
 
 

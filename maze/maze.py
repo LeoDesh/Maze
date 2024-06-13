@@ -2,6 +2,7 @@ from cell.cell import Cell
 from matplotlib import pyplot as plt
 from matplotlib import colors as c
 from typing import List, Tuple, Dict
+import re
 import random
 import logging
 from maze.maze_utils import (
@@ -9,7 +10,7 @@ from maze.maze_utils import (
     find_value_in_config,
     subtract_tuples,
     transform_coordinates,
-    retransform_coordinates,
+    verify_ending,
 )
 
 
@@ -25,6 +26,27 @@ logger.addHandler(file_handler)
 
 class InvalidList(Exception):
     pass
+
+
+def full_path(width: int):
+    # verify path
+    path_list = []
+    with open(LOG_FILE) as file:
+        pattern = re.compile("\((\d+), (\d+)\)")
+        for line in file.readlines():
+            matches = pattern.finditer(line)
+            for match in matches:
+                path_list.append((int(match.group(1)), int(match.group(2))))
+    if not path_list:
+        raise ValueError(
+            "The sample.log file is empty. You first need to solve a maze!"
+        )
+    final_list = []
+    for index in range(len(path_list) - 1):
+        if path_list[index + 1] != path_list[index]:
+            final_list.append(path_list[index])
+    final_list.append(path_list[-1])
+    return transform_coordinates(final_list, width)
 
 
 class Maze:
@@ -126,15 +148,25 @@ class Maze:
             plt.pause(2.0)
             path_dict = {value: move for move, value in self.directions.items()}
             # transformation of coordinates
-            direction_dict = {"right": "^", "left": "v", "up": "<", "down": ">"}
+            direction_dict = {
+                "right": "^",
+                "left": "v",
+                "up": "<",
+                "down": ">",
+                "stuck": "o",
+            }
             plot_dict = {}
             for index, tup in enumerate(path):
                 if index + 1 < len(path):
-                    plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
+                    if path[index + 1] not in plot_dict:
+                        plot_dict[tup] = path_dict[
+                            subtract_tuples(path[index + 1], tup)
+                        ]
+                    else:
+                        plot_dict[tup] = "stuck"
             for coords, direction in plot_dict.items():
                 x, y = coords
                 # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
-                u, v = (y - 0.5), (self._width - x + 0.5)
                 u, v = (x - 0.5, y - 0.5)
                 ax.scatter(
                     x=u,
@@ -147,7 +179,7 @@ class Maze:
         plt.show()
 
     def export_maze(self, filename: str):
-        verify_file(filename)
+        verify_ending(filename)
         with open(filename, "w") as file:
             for line in self.config:
                 export_str = " ".join(f"{number}" for number in line)
