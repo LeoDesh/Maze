@@ -1,8 +1,9 @@
-from cell import Cell
+from cell.cell import Cell
 from matplotlib import pyplot as plt
+from matplotlib import colors as c
 import random
 import logging
-from maze_utils import verify_file, find_value_in_config, subtract_tuples
+from maze.maze_utils import verify_file, find_value_in_config, subtract_tuples
 
 
 LOG_FILE = "sample.log"
@@ -95,13 +96,17 @@ class Maze:
             rep += part_str + "\n"
         return rep
 
-    def matplotlib_view(self, path: list = None) -> None:
+    def matplotlib_view(
+        self, path: list = None, pausing: float = 0.05, marker_size: int = 50
+    ) -> None:
         fig, ax = plt.subplots()
-        ax.pcolormesh([item for item in reversed(self.config)])
+        cmap = c.ListedColormap(["indigo", "darkcyan", "yellow", "lime"])
+        ax.pcolormesh([item for item in reversed(self.config)], cmap=cmap)
         ax.yaxis.grid(True, color="black", lw=2.5)
         ax.xaxis.grid(True, color="black", lw=2.5)
         ax.set_xticks(range(self._length))
         ax.set_yticks(range(self._width))
+
         if path:
             plt.pause(2.0)
             path_dict = {value: move for move, value in self.directions.items()}
@@ -115,9 +120,13 @@ class Maze:
                 # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
                 u, v = (y - 0.5), (self._width - x + 0.5)
                 ax.scatter(
-                    x=u, y=v, marker=direction_dict[direction], s=65, c="lightcoral"
+                    x=u,
+                    y=v,
+                    marker=direction_dict[direction],
+                    s=marker_size,
+                    c="lightcoral",
                 )
-                plt.pause(0.05)
+                plt.pause(pausing)
         plt.show()
 
     def export_maze(self, filename: str):
@@ -221,12 +230,3 @@ def remove_coords_from_maze_path(maze_path: dict, current_neighbours: dict) -> N
                 key_list.append(key)
     for key in key_list:
         del current_neighbours[key]
-
-
-def main():
-    maze = Maze.import_maze("example.txt")
-    print(maze.config)
-
-
-if __name__ == "__main__":
-    main()

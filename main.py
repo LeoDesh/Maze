@@ -1,26 +1,7 @@
-from maze import Maze, MazeSolver, dfs_algorithm
-from maze_factory import DFSMaze
-import random
+from maze.maze import Maze, MazeSolver, dfs_algorithm
+from maze.maze_factory import DFSMaze
 from pathlib import Path
-
-
-def get_maze_text():
-    maze = []
-    with open("maze.txt", "r") as file:
-        for line in file:
-            line = line.rstrip()
-            row = []
-            for c in line:
-                if c == " ":
-                    row.append(1)  # spaces are 1s
-                else:
-                    row.append(0)  # walls are 0s
-            maze.append(row)
-    return maze
-
-
-def generate_maze(length: int, width: int):
-    pass
+import random
 
 
 """ 
@@ -47,28 +28,21 @@ random.seed(15)
  """
 
 
-def process_path(path: str, relative_backwards: str):
-    folders = path.split("\\")
-    count = relative_backwards.count(".")
-    return "\\".join(folders[i] for i in range(len(folders) - count))
-
-
 def main():
-    random.seed(15)
-    width = 30
+    """random.seed(15)
+    width = 40
     length = 60
     # maze = get_maze_text()
     # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
 
-    """ maze_generator = DFSMaze(width, length)
-    maze_list = maze_generator.create_maze()
-    maze = Maze(maze_list)
+    maze_generator = DFSMaze(width, length)
+    maze_generator.create_maze()
+    maze_list = maze_generator.maze"""
+    maze = Maze.import_maze("maze_examples/maze_60_40.txt")
     solver = MazeSolver(maze, dfs_algorithm)
     path = solver.solve_maze()
-    maze.matplotlib_view(path) """
-    path = str(Path().absolute())
-    print("Directory Path:", Path().absolute())
-    print(process_path(path, "."))
+    maze.matplotlib_view(path=path, pausing=0.001, marker_size=30)
+    # maze_generator.export_maze("maze_examples/maze_60_40.txt")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,12 @@
 import os
 
 
+def process_path(path: str, relative_backwards: str):
+    folders = path.split("\\")
+    count = relative_backwards.count(".")
+    return "\\".join(folders[i] for i in range(len(folders) - count))
+
+
 def add_tuples(t1: tuple, t2: tuple):
     return tuple(s + t for s, t in zip(t1, t2))
 

@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from abc import ABC
-from cell import Cell
+from cell.cell import Cell
 import random
 import logging
-from maze_utils import add_tuples, verify_ending
+from maze.maze_utils import add_tuples, verify_ending
 
 LOG_FILE = "sample_factory.log"
 
@@ -189,12 +189,3 @@ class DFSMaze(MazeFactory):
             return self._maze
         else:
             raise ValueError("Maze has not been created yet. Use create_maze()!")
-
-
-random.seed(5)
-width = 5
-length = 4
-maze = DFSMaze(width, length)
-maze.create_maze()
-print(maze.maze)
-maze.export_maze("example.txt")
