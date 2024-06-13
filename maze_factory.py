@@ -3,6 +3,7 @@ from abc import ABC
 from cell import Cell
 import random
 import logging
+from maze_utils import add_tuples, verify_ending
 
 LOG_FILE = "sample_factory.log"
 
@@ -12,10 +13,6 @@ file_handler = logging.FileHandler(LOG_FILE, "w")
 formatter = logging.Formatter("%(asctime)s:%(funcName)s:%(levelname)s:%(message)s")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-
-
-def add_tuples(t1: tuple, t2: tuple):
-    return tuple(s + t for s, t in zip(t1, t2))
 
 
 def update_turning_points(turning_points, visited_cells, cells_neighbours):
@@ -49,8 +46,32 @@ class MazeFactory(ABC):
     wall_directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
 
     def __init__(self, width: int, length: int):
-        self._width = width
-        self._length = length
+        self.width = width
+        self.length = length
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, w: int):
+        if not isinstance(w, int):
+            raise TypeError(f"{w} must be of type int!")
+        elif w <= 0:
+            raise ValueError(f"Provided value {w} is not positive!")
+        self._width = w
+
+    @property
+    def length(self):
+        return self._length
+
+    @length.setter
+    def length(self, l: int):
+        if not isinstance(l, int):
+            raise TypeError(f"{l} must be of type int!")
+        elif l <= 0:
+            raise ValueError(f"Provided value {l} is not positive!")
+        self._length = l
 
     @abstractmethod
     def create_maze(self) -> list:
@@ -60,27 +81,29 @@ class MazeFactory(ABC):
 class DFSMaze(MazeFactory):
     def __init__(self, width: int, length: int):
         super().__init__(width, length)
+        self._maze = []
+
+    def init_maze_procedure(self):
         self._cells = {
             (2 * i + 1, 2 * j + 1): Cell(2 * i + 1, 2 * j + 1, "C")
-            for i in range(width)
-            for j in range(length)
+            for i in range(self._width)
+            for j in range(self._length)
         }
         self._walls = {
             (i + 1, j + 1): Cell(i + 1, j + 1, "W")
-            for i in range(2 * width - 1)
-            for j in range(2 * length - 1)
+            for i in range(2 * self._width - 1)
+            for j in range(2 * self._length - 1)
             if (i + 1, j + 1) not in self._cells
         }
         self._visited_cells = []
         self.init_cell_neighbours()
 
-    def create_maze(self) -> list:
+    def create_maze(self):
+        self.init_maze_procedure()
         key = random.choice(list(self._cells.keys()))
         total_amount = self._width * self._length
         current_point = key
         turning_points = []
-        # print(list(self._cells.keys()))
-        # print(list(self._walls.keys()))
         while len(self._visited_cells) < total_amount - 1:
             # delete the current point out of the neighbours
             size = len(self._cells[current_point]._neighbours.items())
@@ -115,7 +138,7 @@ class DFSMaze(MazeFactory):
             current_point = next_point
             update_turning_points(turning_points, self._visited_cells, self._cells)
 
-        return self.maze_list()
+        self._maze = self.maze_list()
 
     def update_step(self, current_point: tuple) -> tuple:
         key = random.choice(list(self._cells[current_point]._neighbours.keys()))
@@ -150,3 +173,30 @@ class DFSMaze(MazeFactory):
         i, j = end_point
         maze[i - 1][j - 1] = 0.75
         return maze
+
+    def export_maze(self, filename: str):
+        verify_ending(filename)
+        maze = self.maze
+        with open(filename, "w") as file:
+            for line in maze:
+                export_str = " ".join(f"{number}" for number in line)
+                export_str += "\n"
+                file.write(export_str)
+
+    @property
+    def maze(self):
+        if self._maze:
+            return self._maze
+        else:
+            raise ValueError("Maze has not been created yet. Use create_maze()!")
+
+
+random.seed(5)
+width = 5
+length = 4
+maze = DFSMaze(width, length)
+maze.create_maze()
+print(maze.maze)
+# maze.export_maze("example.txt")
+maze.create_maze()
+print(maze.maze)

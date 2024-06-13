@@ -2,6 +2,8 @@ from cell import Cell
 from matplotlib import pyplot as plt
 import random
 import logging
+from maze_utils import verify_file, find_value_in_config, subtract_tuples
+
 
 LOG_FILE = "sample.log"
 
@@ -15,20 +17,6 @@ logger.addHandler(file_handler)
 
 class InvalidList(Exception):
     pass
-
-
-def subtract_tuples(t1: tuple, t2: tuple):
-    return tuple(s - t for s, t in zip(t1, t2))
-
-
-def find_value_in_config(value: float, maze_config: list):
-    width = len(maze_config)
-    length = len(maze_config[0])
-    for i in range(width):
-        for j in range(length):
-            if value == maze_config[i][j]:
-                return True
-    return False
 
 
 class Maze:
@@ -132,6 +120,26 @@ class Maze:
                 plt.pause(0.05)
         plt.show()
 
+    def export_maze(self, filename: str):
+        verify_file(filename)
+        with open(filename, "w") as file:
+            for line in self.config:
+                export_str = " ".join(f"{number}" for number in line)
+                export_str += "\n"
+                file.write(export_str)
+
+    @classmethod
+    def import_maze(cls, filename: str, delimiter: str = " "):
+        verify_file(filename)
+        config = []
+        with open(filename, "r") as file:
+            for line in file.readlines():
+                line = line.replace("\n", "")
+                line_config = [float(number) for number in line.split(delimiter)]
+                config.append(line_config)
+        print(config)
+        return cls(config)
+
 
 class MazeSolver:
     def __init__(self, maze: Maze, algorithm):
@@ -209,3 +217,12 @@ def remove_coords_from_maze_path(maze_path: dict, current_neighbours: dict) -> N
                 key_list.append(key)
     for key in key_list:
         del current_neighbours[key]
+
+
+def main():
+    maze = Maze.import_maze("example.txt")
+    print(maze.config)
+
+
+if __name__ == "__main__":
+    main()

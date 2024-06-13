@@ -1,6 +1,7 @@
 from maze import Maze, MazeSolver, dfs_algorithm
 from maze_factory import DFSMaze
 import random
+from pathlib import Path
 
 
 def get_maze_text():
@@ -46,6 +47,12 @@ random.seed(15)
  """
 
 
+def process_path(path: str, relative_backwards: str):
+    folders = path.split("\\")
+    count = relative_backwards.count(".")
+    return "\\".join(folders[i] for i in range(len(folders) - count))
+
+
 def main():
     random.seed(15)
     width = 30
@@ -53,12 +60,15 @@ def main():
     # maze = get_maze_text()
     # maze = [[1, 1, 0], [0, 0.5, 1], [1, 1, 0]]
 
-    maze_generator = DFSMaze(width, length)
+    """ maze_generator = DFSMaze(width, length)
     maze_list = maze_generator.create_maze()
     maze = Maze(maze_list)
     solver = MazeSolver(maze, dfs_algorithm)
     path = solver.solve_maze()
-    maze.matplotlib_view(path)
+    maze.matplotlib_view(path) """
+    path = str(Path().absolute())
+    print("Directory Path:", Path().absolute())
+    print(process_path(path, "."))
 
 
 if __name__ == "__main__":
