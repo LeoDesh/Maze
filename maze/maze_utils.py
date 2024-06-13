@@ -1,5 +1,19 @@
 import os
 
+from typing import Tuple, List
+
+
+def transform_coordinates(
+    path: List[Tuple[int, int]], width: int
+) -> List[Tuple[int, int]]:
+    return [(y, width - x + 1) for (x, y) in path]
+
+
+def retransform_coordinates(
+    path: List[Tuple[int, int]], width: int
+) -> List[Tuple[int, int]]:
+    return [(-(y - width - 1), x) for (x, y) in path]
+
 
 def process_path(path: str, relative_backwards: str):
     folders = path.split("\\")
@@ -31,7 +45,7 @@ def subtract_tuples(t1: tuple, t2: tuple):
     return tuple(s - t for s, t in zip(t1, t2))
 
 
-def find_value_in_config(value: float, maze_config: list):
+def find_value_in_config(value: float, maze_config: List[List]):
     width = len(maze_config)
     length = len(maze_config[0])
     for i in range(width):

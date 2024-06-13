@@ -23,11 +23,11 @@ def maze_example(width: int = 10, length: int = 20):
 def main():
     ## read_maze via files
 
-    # read_maze()
+    # read_maze("maze_examples/maze_40_20.txt")
 
     ## generate own maze with provided length and width (e.g. 20 and 10)
 
-    # maze_example(width = 15,length = 30)
+    maze_example(width=5, length=10)
     pass
 
 

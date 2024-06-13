@@ -1,9 +1,16 @@
 from cell.cell import Cell
 from matplotlib import pyplot as plt
 from matplotlib import colors as c
+from typing import List, Tuple, Dict
 import random
 import logging
-from maze.maze_utils import verify_file, find_value_in_config, subtract_tuples
+from maze.maze_utils import (
+    verify_file,
+    find_value_in_config,
+    subtract_tuples,
+    transform_coordinates,
+    retransform_coordinates,
+)
 
 
 LOG_FILE = "sample.log"
@@ -24,13 +31,21 @@ class Maze:
     valid_values = {1: "C", 0: "W", 2: "S", 3: "E"}
     directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
 
-    def __init__(self, maze_config: list):
+    def __init__(self, maze_config: List[List[int]]):
         self.validate_input(maze_config)
         self.validate_values(maze_config)
         self.config_cells()
         self.init_cell_neighbours()
 
-    def validate_input(self, maze_config: list):
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def length(self):
+        return self._length
+
+    def validate_input(self, maze_config: List[List[int]]):
         try:
             self._length = len(maze_config[0])
             self._width = len(maze_config)
@@ -41,7 +56,7 @@ class Maze:
         except (TypeError, InvalidList):
             raise InvalidList("Provided Inputs do not fit the maze criterion!")
 
-    def validate_values(self, maze_config: list):
+    def validate_values(self, maze_config: List[List[int]]):
         try:
             for value in self.valid_values.keys():
                 if not find_value_in_config(value, maze_config):
@@ -110,7 +125,8 @@ class Maze:
         if path:
             plt.pause(2.0)
             path_dict = {value: move for move, value in self.directions.items()}
-            direction_dict = {"right": ">", "left": "<", "up": "^", "down": "v"}
+            # transformation of coordinates
+            direction_dict = {"right": "^", "left": "v", "up": "<", "down": ">"}
             plot_dict = {}
             for index, tup in enumerate(path):
                 if index + 1 < len(path):
@@ -119,6 +135,7 @@ class Maze:
                 x, y = coords
                 # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
                 u, v = (y - 0.5), (self._width - x + 0.5)
+                u, v = (x - 0.5, y - 0.5)
                 ax.scatter(
                     x=u,
                     y=v,
@@ -159,8 +176,11 @@ class MazeSolver:
         self.maze = maze
         self.algorithm = algorithm
 
-    def solve_maze(self):
-        return self.algorithm(self.maze)
+    def solve_maze(self, transform=True):
+        if transform:
+            return transform_coordinates(self.algorithm(self.maze), self.maze.width)
+        else:
+            return self.algorithm(self.maze)
 
 
 def dfs_algorithm(maze: Maze):
@@ -222,7 +242,10 @@ def dfs_algorithm(maze: Maze):
     return path
 
 
-def remove_coords_from_maze_path(maze_path: dict, current_neighbours: dict) -> None:
+def remove_coords_from_maze_path(
+    maze_path: Dict[int, Dict[str, Tuple[int, int]]],
+    current_neighbours: Dict[str, Tuple[int, int]],
+) -> None:
     key_list = []
     for values in maze_path.values():
         for key, coords in current_neighbours.items():
