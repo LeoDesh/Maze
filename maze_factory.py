@@ -168,10 +168,10 @@ class DFSMaze(MazeFactory):
             maze[i - 1][j - 1] = 0
         starting_point = random.choice(list(self._cells.keys()))
         i, j = starting_point
-        maze[i - 1][j - 1] = 0.25
+        maze[i - 1][j - 1] = 2
         end_point = random.choice(list(self._cells.keys()))
         i, j = end_point
-        maze[i - 1][j - 1] = 0.75
+        maze[i - 1][j - 1] = 3
         return maze
 
     def export_maze(self, filename: str):
@@ -197,6 +197,4 @@ length = 4
 maze = DFSMaze(width, length)
 maze.create_maze()
 print(maze.maze)
-# maze.export_maze("example.txt")
-maze.create_maze()
-print(maze.maze)
+maze.export_maze("example.txt")

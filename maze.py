@@ -20,7 +20,7 @@ class InvalidList(Exception):
 
 
 class Maze:
-    valid_values = {1: "C", 0: "W", 0.25: "S", 0.75: "E"}
+    valid_values = {1: "C", 0: "W", 2: "S", 3: "E"}
     directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
 
     def __init__(self, maze_config: list):
@@ -59,9 +59,9 @@ class Maze:
                 self.cell_config[(j + 1, i + 1)] = Cell(
                     j + 1, i + 1, self.valid_values[typing]
                 )
-                if typing == 0.25:
+                if typing == 2:
                     self.starting_point = (j + 1, i + 1)
-                elif typing == 0.75:
+                elif typing == 3:
                     self.ending_point = (j + 1, i + 1)
 
     def init_cell_neighbours(self):
@@ -133,11 +133,15 @@ class Maze:
         verify_file(filename)
         config = []
         with open(filename, "r") as file:
-            for line in file.readlines():
-                line = line.replace("\n", "")
-                line_config = [float(number) for number in line.split(delimiter)]
-                config.append(line_config)
-        print(config)
+            try:
+                for line in file.readlines():
+                    line = line.replace("\n", "")
+                    line_config = [int(number) for number in line.split(delimiter)]
+                    config.append(line_config)
+            except (TypeError, ValueError):
+                raise TypeError(
+                    "Provided input includes values which cannot be converted to int!"
+                )
         return cls(config)
 
 
