@@ -1,6 +1,6 @@
 from maze.maze import Maze, MazeSolver, dfs_algorithm, full_path
 from maze.maze_factory import DFSMaze
-import random
+# import random
 
 
 def read_maze(filename: str = "maze_examples/maze_60_40.txt"):
@@ -29,7 +29,6 @@ def read_maze_full_path(filename: str = "maze_examples/maze_24_16.txt"):
 
 
 def main():
-    random.seed(7)
     ## read_maze via files
 
     # read_maze("maze_examples/maze_40_20.txt")

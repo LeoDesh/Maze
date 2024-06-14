@@ -1,5 +1,5 @@
 import pytest
-from ..cell.cell import Cell
+from cell.cell import Cell
 
 X_1 = 1
 Y_1 = 1

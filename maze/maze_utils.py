@@ -45,7 +45,7 @@ def subtract_tuples(t1: tuple, t2: tuple):
     return tuple(s - t for s, t in zip(t1, t2))
 
 
-def find_value_in_config(value: float, maze_config: List[List]):
+def find_value_in_config(value: int, maze_config: List[List[int]]):
     width = len(maze_config)
     length = len(maze_config[0])
     for i in range(width):
