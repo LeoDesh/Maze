@@ -49,6 +49,17 @@ def full_path(width: int):
     return transform_coordinates(final_list, width)
 
 
+def select_direction(
+    end_point: Tuple[int, int], neighbours: Dict[str, Tuple[int, int]]
+):
+    # print(neighbours)
+    rev_dict = {coords: move for move, coords in neighbours.items()}
+    if end_point in rev_dict:
+        return rev_dict[end_point]
+    else:
+        return random.choice(list(neighbours.keys()))
+
+
 class Maze:
     valid_values = {1: "C", 0: "W", 2: "S", 3: "E"}
     directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
@@ -243,7 +254,9 @@ def dfs_algorithm(maze: Maze):
         elif len(current_neighbours) == 1:
             if index in turning_points:
                 turning_points.remove(index)
-            key = random.choice(list(current_neighbours.keys()))
+            # key = random.choice(list(current_neighbours.keys()))
+            key = select_direction(end, current_neighbours)
+            # check if neighbour is end_point
             next_point = current_neighbours[key]
             logger.debug(
                 f"Current Point {current_point} has 1 neighbour! Next Point {next_point}"
@@ -256,7 +269,9 @@ def dfs_algorithm(maze: Maze):
         else:
             if index not in turning_points:
                 turning_points.append(index)
-            key = random.choice(list(current_neighbours.keys()))
+            # key = random.choice(list(current_neighbours.keys()))
+            key = select_direction(end, current_neighbours)
+            # check if neighbour is end_point
             next_point = current_neighbours[key]
             logger.debug(
                 f"Current Point {current_point} has at least 2 neighbours! Next Point {next_point}"

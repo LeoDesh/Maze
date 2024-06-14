@@ -25,17 +25,18 @@ def read_maze_full_path(filename: str = "maze_examples/maze_24_16.txt"):
     maze = Maze.import_maze(filename)
     solver = MazeSolver(maze, dfs_algorithm)
     solver.solve_maze()
-    maze.matplotlib_view(path=full_path(maze.width), pausing=0.001, marker_size=40)
+    maze.matplotlib_view(path=full_path(maze.width), pausing=0.0001, marker_size=40)
 
 
 def main():
+    random.seed(7)
     ## read_maze via files
 
     # read_maze("maze_examples/maze_40_20.txt")
 
     ## generate own maze with provided length and width (e.g. 20 and 10)
 
-    # maze_example(length=20,width=10)
+    # maze_example(length=20, width=10)
 
     ## read maze via file, but show all the visited cells of the algorithm
 
