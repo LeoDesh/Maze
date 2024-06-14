@@ -1,46 +1,70 @@
 from maze.maze import Maze, MazeSolver, dfs_algorithm, full_path
 from maze.maze_factory import DFSMaze
+from typing import Tuple
 # import random
 
 
-def read_maze(filename: str = "maze_examples/maze_60_40.txt"):
-    maze = Maze.import_maze(filename)
-    solver = MazeSolver(maze, dfs_algorithm)
-    # solution path
-    path = solver.solve_maze()
-    maze.matplotlib_view(path=path, pausing=0.0005, marker_size=20)
+def read_maze(filename: str = "maze_examples/maze_24_16.txt") -> Maze:
+    """Reads maze from file"""
+    return Maze.import_maze(filename)
 
 
-def maze_example(width: int = 10, length: int = 20):
+def create_maze(width: int = 10, length: int = 20):
+    """Generates a random maze with provided sizes"""
     maze_generator = DFSMaze(width, length)
     maze_generator.create_maze()
     maze_list = maze_generator.maze
-    maze = Maze(maze_list)
-    solver = MazeSolver(maze, dfs_algorithm)
-    path = solver.solve_maze()
-    maze.matplotlib_view(path=path, pausing=0.001, marker_size=40)
+    return Maze(maze_list)
 
 
-def read_maze_full_path(filename: str = "maze_examples/maze_24_16.txt"):
-    maze = Maze.import_maze(filename)
+def solve_maze(maze: Maze) -> Tuple[int, int]:
     solver = MazeSolver(maze, dfs_algorithm)
-    solver.solve_maze()
-    maze.matplotlib_view(path=full_path(maze.width), pausing=0.0001, marker_size=40)
+    return solver.solve_maze()
+
+
+def plot_solution_path(
+    maze: Maze,
+    solution_path: Tuple[int, int],
+    pausing: float = 0.0005,
+    marker_size: int = 20,
+) -> None:
+    maze.matplotlib_view(path=solution_path, pausing=pausing, marker_size=marker_size)
+
+
+# full_path
+
+
+def plot_full_algorithm_path(
+    maze: Maze,
+    pausing: float = 0.0005,
+    marker_size: int = 20,
+) -> None:
+    maze.matplotlib_view(
+        path=full_path(maze.width), pausing=pausing, marker_size=marker_size
+    )
 
 
 def main():
-    ## read_maze via files
+    ## 1) Create Mazes
+    ## 1a) read_maze via files
+    # maze = read_maze()
 
-    # read_maze("maze_examples/maze_40_20.txt")
+    ## 1b) create_maze via parameters
+    maze = create_maze(length=20, width=15)
 
-    ## generate own maze with provided length and width (e.g. 20 and 10)
+    ## 2) Solve Maze
+    solution_path = solve_maze(maze=maze)
 
-    # maze_example(length=20, width=10)
+    ## 3) Plot Maze
+    # 3a) plot solution path
+    plot_solution_path(maze, solution_path)
 
-    ## read maze via file, but show all the visited cells of the algorithm
+    # 3b) plot all visited cells
+    # plot_full_algorithm_path(maze)
 
-    read_maze_full_path()
-    pass
+    ## 4) Export Maze
+    ## 0-Walls / 1-Cells / 2-Start / 3-End
+    # maze.export_maze()
 
 
 if __name__ == "__main__":

@@ -154,7 +154,9 @@ class Maze:
         ax.xaxis.grid(True, color="black", lw=2.5)
         ax.set_xticks(range(self._length))
         ax.set_yticks(range(self._width))
-
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+        # plt.axis("off")
         if path:
             plt.pause(2.0)
             path_dict = {value: move for move, value in self.directions.items()}
@@ -189,7 +191,9 @@ class Maze:
                 plt.pause(pausing)
         plt.show()
 
-    def export_maze(self, filename: str):
+    def export_maze(self, filename: str = ""):
+        if not filename:
+            filename = f"maze_examples/maze_{self.length+1}_{self.width+1}.txt"
         verify_ending(filename)
         with open(filename, "w") as file:
             for line in self.config:
@@ -227,6 +231,8 @@ class MazeSolver:
 
 
 def dfs_algorithm(maze: Maze):
+    with open(LOG_FILE, "w"):
+        pass
     start = maze.starting_point
     end = maze.ending_point
     maze_path = {}
