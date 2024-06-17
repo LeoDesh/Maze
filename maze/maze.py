@@ -169,6 +169,7 @@ class Maze:
                 "stuck": "o",
             }
             plot_dict = {}
+            # build extern function
             for index, tup in enumerate(path):
                 if index + 1 < len(path):
                     if path[index + 1] not in plot_dict:

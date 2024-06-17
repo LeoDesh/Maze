@@ -21,11 +21,21 @@ def test_cell_setters(cell_1):
     assert Y_2 == cell_1.y
 
 
-def test_cell_setters_negative_values(cell_1):
+def test_cell_setters_y_negative_values(cell_1):
     with pytest.raises(ValueError):
         cell_1.y = -5
 
 
-def test_cell_setters_string_values(cell_1):
+def test_cell_setters_y_string_values(cell_1):
     with pytest.raises(TypeError):
         cell_1.y = "hi"
+
+
+def test_cell_setters_x_negative_values(cell_1):
+    with pytest.raises(ValueError):
+        cell_1.x = -5
+
+
+def test_cell_setters_x_string_values(cell_1):
+    with pytest.raises(TypeError):
+        cell_1.x = "hi"
