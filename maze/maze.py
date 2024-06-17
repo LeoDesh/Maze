@@ -28,10 +28,10 @@ class InvalidList(Exception):
     pass
 
 
-def full_path(width: int):
+def full_path(width: int, filename: str = LOG_FILE):
     # verify path
     path_list = []
-    with open(LOG_FILE) as file:
+    with open(filename) as file:
         pattern = re.compile("\((\d+), (\d+)\)")
         for line in file.readlines():
             matches = pattern.finditer(line)
@@ -58,6 +58,22 @@ def select_direction(
         return rev_dict[end_point]
     else:
         return random.choice(list(neighbours.keys()))
+
+
+def create_path_direction_dict(
+    directions: Dict[str, Tuple[int, int]], path: List[Tuple[int, int]]
+):
+    path_dict = {value: move for move, value in directions.items()}
+    # transformation of coordinates
+    plot_dict = {}
+    # build extern function
+    for index, tup in enumerate(path):
+        if index + 1 < len(path):
+            if path[index + 1] not in plot_dict:
+                plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
+            else:
+                plot_dict[tup] = "stuck"
+    return plot_dict
 
 
 class Maze:
@@ -159,8 +175,6 @@ class Maze:
         # plt.axis("off")
         if path:
             plt.pause(2.0)
-            path_dict = {value: move for move, value in self.directions.items()}
-            # transformation of coordinates
             direction_dict = {
                 "right": "^",
                 "left": "v",
@@ -168,16 +182,7 @@ class Maze:
                 "down": ">",
                 "stuck": "o",
             }
-            plot_dict = {}
-            # build extern function
-            for index, tup in enumerate(path):
-                if index + 1 < len(path):
-                    if path[index + 1] not in plot_dict:
-                        plot_dict[tup] = path_dict[
-                            subtract_tuples(path[index + 1], tup)
-                        ]
-                    else:
-                        plot_dict[tup] = "stuck"
+            plot_dict = create_path_direction_dict(self.directions, path)
             for coords, direction in plot_dict.items():
                 x, y = coords
                 # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot

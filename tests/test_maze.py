@@ -1,10 +1,47 @@
-from maze.maze import Maze, InvalidList, find_value_in_config, MazeSolver, dfs_algorithm
+from maze.maze import (
+    Maze,
+    InvalidList,
+    find_value_in_config,
+    MazeSolver,
+    dfs_algorithm,
+    full_path,
+    create_path_direction_dict,
+)
 import pytest
 
 
 @pytest.fixture
 def example_maze():
     return Maze.import_maze("tests/maze_examples/maze_12_6.txt")
+
+
+@pytest.fixture
+def example_sample_full_path():
+    return [
+        (1, 1),
+        (1, 2),
+        (1, 3),
+        (2, 3),
+        (3, 3),
+        (1, 1),
+        (2, 1),
+        (3, 1),
+        (4, 1),
+        (5, 1),
+        (5, 2),
+        (5, 3),
+        (5, 4),
+        (5, 5),
+        (5, 6),
+        (5, 7),
+        (5, 8),
+        (5, 9),
+        (5, 10),
+        (5, 11),
+        (4, 11),
+        (3, 11),
+        (3, 10),
+    ]
 
 
 @pytest.fixture
@@ -83,4 +120,21 @@ def test_maze_solver_dfs(example_maze, solution_path):
     assert maze_solver.solve_maze() == solution_path
 
 
-# full_path, export_maze, import_maze, split part of matplotview, put single functions in utils file
+def test_full_path(example_sample_full_path):
+    maze = Maze.import_maze("tests/maze_examples/maze_6_3.txt")
+    assert (
+        full_path(maze.width, "tests/maze_examples/route.log")
+        == example_sample_full_path
+    )
+
+
+def test_import_maze(example_maze):
+    with pytest.raises(TypeError):
+        example_maze.import_maze("tests/maze_examples/maze_fail.txt")
+
+
+def test_path_creation_dict():
+    pass  # create_path_direction_dict
+
+
+# export_maze, split part of matplotview, put single functions in utils file
