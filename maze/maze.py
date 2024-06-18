@@ -12,6 +12,7 @@ from maze.maze_utils import (
     subtract_tuples,
     transform_coordinates,
     verify_ending,
+    transform_single_coordinates,
 )
 
 
@@ -207,9 +208,7 @@ class Maze:
             rep += part_str + "\n"
         return rep
 
-    def view_maze(
-        self,
-    ) -> None:
+    def view_maze(self, path, marker_size=50, pausing=0.01) -> None:
         fig, ax = plt.subplots()
         cmap = c.ListedColormap(["indigo", "darkcyan", "yellow", "lime"])
         ax.pcolormesh([item for item in reversed(self.config)], cmap=cmap)
@@ -220,6 +219,28 @@ class Maze:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
         # plt.axis("off")
+        if path:
+            plt.pause(2.0)
+            direction_dict = {
+                "right": "^",
+                "left": "v",
+                "up": "<",
+                "down": ">",
+                "stuck": "o",
+            }
+            for coords, direction in path.items():
+                x, y = coords
+                # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
+                u, v = (x - 0.5, y - 0.5)
+                ax.scatter(
+                    x=u,
+                    y=v,
+                    marker=direction_dict[direction],
+                    s=marker_size,
+                    c="lightcoral",
+                )
+                plt.pause(pausing)
+        plt.show()
         plt.show()
 
     def export_maze(self, filename: str = ""):
@@ -618,7 +639,7 @@ def view_path(
     }
     min_value = 0
     max_value = max(list(total_upper_key_numbers.values()))
-    final_path = []
+    final_path = {}
     for index in range(min_value, max_value):
         for key in key_numbers:
             key_min_val, key_max_val = (
@@ -633,8 +654,8 @@ def view_path(
                     sign = path_dict[
                         subtract_tuples(path[key][index - key_min_val + 1], coords)
                     ]
-                final_path.append((coords, sign))
-    return [(transform_coordinates(coords), sign) for coords, sign in final_path]
+                final_path[transform_single_coordinates(coords, 11)] = sign
+    return final_path
 
 
 def compute_lower_number(key: str, key_numbers: Dict[str, int]):

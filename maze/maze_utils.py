@@ -3,10 +3,15 @@ import os
 from typing import Tuple, List
 
 
+def transform_single_coordinates(tup: Tuple[int], width):
+    x, y = tup
+    return (y, width - x + 1)
+
+
 def transform_coordinates(
     path: List[Tuple[int, int]], width: int
 ) -> List[Tuple[int, int]]:
-    return [(y, width - x + 1) for (x, y) in path]
+    return [transform_single_coordinates(tup, width) for tup in path]
 
 
 def retransform_coordinates(
