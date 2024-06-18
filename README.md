@@ -42,7 +42,7 @@ plot_full_algorithm_path(maze)
 
 ## Implemented Algorithms:
 - depth first search algorithm (DFS)
-- Not yet: Breadth-first search (BFS) 
+- breadth first search (BFS) 
 
 
 ## Contributing

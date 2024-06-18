@@ -28,6 +28,10 @@ class InvalidList(Exception):
     pass
 
 
+class NotSolvable(Exception):
+    pass
+
+
 def full_path(width: int, filename: str = LOG_FILE):
     # verify path
     path_list = []
@@ -76,6 +80,11 @@ def create_path_direction_dict(
     return plot_dict
 
 
+def opposite_direction(direction: str):
+    opposite_directions = {"up": "down", "down": "up", "right": "left", "left": "right"}
+    return opposite_directions[direction]
+
+
 class Maze:
     valid_values = {1: "C", 0: "W", 2: "S", 3: "E"}
     directions = {"up": (-1, 0), "down": (1, 0), "right": (0, 1), "left": (0, -1)}
@@ -85,6 +94,22 @@ class Maze:
         self.validate_values(maze_config)
         self.config_cells()
         self.init_cell_neighbours()
+        self._solution_path = []
+        self._full_path = []
+
+    @property
+    def solution_path(self):
+        if self._solution_path:
+            return self._solution_path
+        else:
+            raise ValueError("The maze has not been solved yet!")
+
+    @property
+    def full_path(self):
+        if self._full_path:
+            return self._full_path
+        else:
+            raise ValueError("The maze has not been solved yet!")
 
     @property
     def width(self):
@@ -299,6 +324,81 @@ def dfs_algorithm(maze: Maze):
     path = [values[0] for values in maze_path.values()]
     path.append(end)
     return path
+
+
+def bfs_algorithm(maze: Maze):
+    with open(LOG_FILE, "w"):
+        pass
+    start = maze.starting_point
+    end = maze.ending_point
+    search_loop = True
+    dict_path: dict = {"1": [start]}
+    dict_active: dict = {"1": start}
+    current_point = start
+    while search_loop:
+        for key_index in dict_active.copy().keys():
+            current_point = dict_active[key_index]
+            current_neighbours = dict(maze.cell_config[current_point]._neighbours)
+            # remove_coords_from_maze_path(maze_path, current_neighbours)
+
+            if len(current_neighbours) == 0:
+                del dict_active[key_index]
+                if not dict_active:
+                    raise NotSolvable("Maze is not solvable!")
+
+            elif len(current_neighbours) == 1:
+                direction = select_direction(end, current_neighbours)
+                next_point = current_neighbours[direction]
+                logger.debug(
+                    f"Current Point {current_point} has 1 neighbour! Next Point {next_point}"
+                )
+                dict_path[key_index].append(next_point)
+                if next_point == end:
+                    search_loop = False
+                    break
+                dict_active[key_index] = next_point
+                del maze.cell_config[next_point]._neighbours[
+                    opposite_direction(direction)
+                ]
+
+            else:
+                logger.debug(
+                    f"Current Point {current_point} has at least 2 neighbours! Path will be split"
+                )
+                for index, direction in enumerate(current_neighbours.copy().keys()):
+                    next_point = current_neighbours[direction]
+                    if next_point == end:
+                        search_loop = False
+                        dict_path[key_index].append(next_point)
+                        break
+
+                    del maze.cell_config[next_point]._neighbours[
+                        opposite_direction(direction)
+                    ]
+                    dict_active[key_index + "." + str(index + 1)] = next_point
+                    dict_path[key_index + "." + str(index + 1)] = [next_point]
+                del dict_active[key_index]
+
+    print(dict_path)
+    path = construct_bfs_path(key_index, dict_path)
+    return path
+
+
+def construct_bfs_path(key_index: str, dict_path: Dict[str, List[Tuple[int, int]]]):
+    delimiter = "."
+    if delimiter in key_index:
+        numbers = key_index.split(delimiter)
+        key_indices = [
+            ".".join(number for number in numbers[: i + 1])
+            for i, _ in enumerate(numbers)
+        ]
+        print(key_indices)
+        path = []
+        for key in key_indices:
+            path += dict_path[key]
+        return path
+    else:
+        return dict_path[key_index]
 
 
 def remove_coords_from_maze_path(
