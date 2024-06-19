@@ -208,7 +208,7 @@ class Maze:
             rep += part_str + "\n"
         return rep
 
-    def view_maze(self, path, marker_size=50, pausing=0.01) -> None:
+    def view_maze(self) -> None:
         fig, ax = plt.subplots()
         cmap = c.ListedColormap(["indigo", "darkcyan", "yellow", "lime"])
         ax.pcolormesh([item for item in reversed(self.config)], cmap=cmap)
@@ -219,28 +219,6 @@ class Maze:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
         # plt.axis("off")
-        if path:
-            plt.pause(2.0)
-            direction_dict = {
-                "right": "^",
-                "left": "v",
-                "up": "<",
-                "down": ">",
-                "stuck": "o",
-            }
-            for coords, direction in path.items():
-                x, y = coords
-                # transform coordinates e.g. (5,10) corresponds to (9.5,2.5) on plot
-                u, v = (x - 0.5, y - 0.5)
-                ax.scatter(
-                    x=u,
-                    y=v,
-                    marker=direction_dict[direction],
-                    s=marker_size,
-                    c="lightcoral",
-                )
-                plt.pause(pausing)
-        plt.show()
         plt.show()
 
     def export_maze(self, filename: str = ""):
@@ -448,6 +426,7 @@ class DFSAlgorithm(MazeAlgorithm):
                     plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
                 else:
                     plot_dict[tup] = "stuck"
+        plot_dict[path[-1]] = "stuck"
         return plot_dict
 
 
@@ -516,6 +495,137 @@ def dfs_algorithm(maze: Maze):
     return path
 
 
+class BFSAlgorithm(MazeAlgorithm):
+    def solve(maze: Maze):
+        with open(LOG_FILE, "w"):
+            pass
+        start = maze.starting_point
+        end = maze.ending_point
+        search_loop = True
+        dict_path: dict = {"1": [start]}
+        dict_active: dict = {"1": start}
+        current_point = start
+        while search_loop:
+            for key_index in dict_active.copy().keys():
+                current_point = dict_active[key_index]
+                current_neighbours = dict(maze.cell_config[current_point]._neighbours)
+                # remove_coords_from_maze_path(maze_path, current_neighbours)
+
+                if len(current_neighbours) == 0:
+                    del dict_active[key_index]
+                    if not dict_active:
+                        raise NotSolvable("Maze is not solvable!")
+
+                elif len(current_neighbours) == 1:
+                    direction = select_direction(end, current_neighbours)
+                    next_point = current_neighbours[direction]
+                    logger.debug(
+                        f"Current Point {current_point} has 1 neighbour! Next Point {next_point}"
+                    )
+                    dict_path[key_index].append(next_point)
+                    if next_point == end:
+                        search_loop = False
+                        break
+                    dict_active[key_index] = next_point
+                    del maze.cell_config[next_point]._neighbours[
+                        opposite_direction(direction)
+                    ]
+
+                else:
+                    logger.debug(
+                        f"Current Point {current_point} has at least 2 neighbours! Path will be split"
+                    )
+                    for index, direction in enumerate(current_neighbours.copy().keys()):
+                        next_point = current_neighbours[direction]
+                        if next_point == end:
+                            search_loop = False
+                            dict_path[key_index].append(next_point)
+                            break
+
+                        del maze.cell_config[next_point]._neighbours[
+                            opposite_direction(direction)
+                        ]
+                        dict_active[key_index + "." + str(index + 1)] = next_point
+                        dict_path[key_index + "." + str(index + 1)] = [next_point]
+                    del dict_active[key_index]
+
+        path = construct_bfs_path(key_index, dict_path)
+        dict_path = {
+            key: transform_coordinates(value, maze.width)
+            for key, value in dict_path.items()
+        }
+        return (transform_coordinates(path, maze.width), dict_path)
+
+    def view_path(
+        maze_directions: Dict[str, Tuple[int, int]],
+        path: List[Tuple[int, int]],
+        choice: str = "",
+    ):
+        if choice == "solution":
+            return BFSAlgorithm.view_solution_path(maze_directions, path)
+        elif choice == "full":
+            return BFSAlgorithm.view_full_path(maze_directions, path)
+        else:
+            raise ValueError("BFS: Invalid Input!")
+
+    def view_solution_path(
+        maze_directions: Dict[str, Tuple[int, int]], path: List[Tuple[int, int]]
+    ):
+        path_dict = {value: move for move, value in maze_directions.items()}
+        # transformation of coordinates
+        plot_dict = {}
+        # build extern function
+        for index, tup in enumerate(path):
+            if index + 1 < len(path):
+                if path[index + 1] not in plot_dict:
+                    plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
+                else:
+                    plot_dict[tup] = "stuck"
+        plot_dict[path[-1]] = "stuck"
+        return plot_dict
+
+    def view_full_path(
+        maze_directions: Dict[str, Tuple[int, int]],
+        path: List[Tuple[int, int]],
+    ):
+        path_dict = {value: move for move, value in maze_directions.items()}
+        key_indices = list(path.keys())
+        key_numbers = {key: len(path[key]) for key in key_indices}
+        total_lower_key_numbers = {
+            key: compute_lower_number(key, key_numbers) for key in key_numbers
+        }
+        total_upper_key_numbers = {
+            key: compute_upper_number(key, key_numbers) for key in key_numbers
+        }
+        min_value = 0
+        max_value = max(list(total_upper_key_numbers.values()))
+        final_path = {}
+        for index in range(min_value, max_value):
+            for key in key_numbers:
+                key_min_val, key_max_val = (
+                    total_lower_key_numbers[key],
+                    total_upper_key_numbers[key],
+                )
+                if key_min_val <= index and key_max_val > index:
+                    coords = path[key][index - key_min_val]
+                    if index + 1 == key_max_val:
+                        sign = "stuck"
+                    else:
+                        sign = path_dict[
+                            subtract_tuples(path[key][index - key_min_val + 1], coords)
+                        ]
+                    final_path[coords] = sign
+        return final_path
+
+
+def orthogonal_directions(sign: str):
+    orth_dict = {"up": "right", "right": "up", "left": "down", "down": "left"}
+    if sign in orth_dict:
+        return orth_dict[sign]
+    else:
+        return sign
+
+
 def bfs_algorithm(maze: Maze):
     with open(LOG_FILE, "w"):
         pass
@@ -570,7 +680,6 @@ def bfs_algorithm(maze: Maze):
                 del dict_active[key_index]
 
     path = construct_bfs_path(key_index, dict_path)
-    print(dict_path)
     return transform_coordinates(path, maze.width)
 
 
@@ -588,74 +697,6 @@ def construct_bfs_path(key_index: str, dict_path: Dict[str, List[Tuple[int, int]
         return path
     else:
         return dict_path[key_index]
-
-
-def view_solution_path(
-    maze_directions: Dict[str, Tuple[int, int]], path: List[Tuple[int, int]]
-):
-    path_dict = {value: move for move, value in maze_directions.items()}
-    # transformation of coordinates
-    plot_dict = {}
-    # build extern function
-    for index, tup in enumerate(path):
-        if index + 1 < len(path):
-            if path[index + 1] not in plot_dict:
-                plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
-            else:
-                plot_dict[tup] = "stuck"
-    return plot_dict
-
-
-def view_full_path(
-    maze_directions: Dict[str, Tuple[int, int]], path: List[Tuple[int, int]]
-):
-    path_dict = {value: move for move, value in maze_directions.items()}
-    # transformation of coordinates
-    plot_dict = {}
-    # build extern function
-    for index, tup in enumerate(path):
-        if index + 1 < len(path):
-            if path[index + 1] not in plot_dict:
-                plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
-            else:
-                plot_dict[tup] = "stuck"
-    return plot_dict
-
-
-def view_path(
-    maze_directions: Dict[str, Tuple[int, int]],
-    path: List[Tuple[int, int]],
-    choice: str = "",
-):
-    path_dict = {value: move for move, value in maze_directions.items()}
-    key_indices = list(path.keys())
-    key_relationship = {key: find_keys(key, key_indices) for key in key_indices}
-    key_numbers = {key: len(path[key]) for key in key_indices}
-    total_lower_key_numbers = {
-        key: compute_lower_number(key, key_numbers) for key in key_numbers
-    }
-    total_upper_key_numbers = {
-        key: compute_upper_number(key, key_numbers) for key in key_numbers
-    }
-    min_value = 0
-    max_value = max(list(total_upper_key_numbers.values()))
-    final_path = {}
-    for index in range(min_value, max_value):
-        for key in key_numbers:
-            key_min_val, key_max_val = (
-                total_lower_key_numbers[key],
-                total_upper_key_numbers[key],
-            )
-            if key_min_val <= index and key_max_val > index:
-                coords = path[key][index - key_min_val]
-                if index + 1 == key_max_val:
-                    sign = "stuck"
-                else:
-                    sign = path_dict[
-                        subtract_tuples(path[key][index - key_min_val + 1], coords)
-                    ]
-                final_path[transform_single_coordinates(coords, 11)] = sign
-    return final_path
 
 
 def compute_lower_number(key: str, key_numbers: Dict[str, int]):
@@ -678,20 +719,6 @@ def compute_upper_number(key: str, key_numbers: Dict[str, int]):
 
 def find_keys(key: str, key_indices: List[str]):
     return [sub_key for sub_key in key_indices if sub_key[0 : len(key)] == key]
-
-
-class Tree:
-    def __init__(self, path):
-        key_indices = list(path.keys())
-
-
-class Node:
-    def __init__(self, children, tuple_list):
-        self.tuples = tuple_list
-        self.children = children
-
-
-# view_path_solution / #view_path_full
 
 
 def construct_bfs_full_path(dict_path: Dict[str, List[Tuple[int, int]]]):

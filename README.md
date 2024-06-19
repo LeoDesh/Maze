@@ -24,12 +24,12 @@ Example mazes are located in maze/maze_examples
 
 ### Solve Maze
 ```
-solution_path = solve_maze(maze=maze)
+solve_maze(maze=maze)
 ```
 
 ### Plot Maze
 ```
-plot_solution_path(maze, solution_path)
+plot_solution_path(maze)
 plot_full_algorithm_path(maze)
 ```
 

@@ -1,12 +1,20 @@
-from maze.maze import Maze, MazeSolver, dfs_algorithm, full_path
+from maze.maze import (
+    Maze,
+    MazeSolver,
+    BFSAlgorithm,
+    DFSAlgorithm,
+)
 from maze.maze_factory import DFSMaze
-from typing import Tuple
-# import random
 
 
 def read_maze(filename: str = "maze_examples/maze_24_16.txt") -> Maze:
     """Reads maze from file"""
     return Maze.import_maze(filename)
+
+
+def plot_maze(maze: Maze) -> None:
+    """Plot a maze"""
+    maze.view_maze()
 
 
 def create_maze(width: int = 10, length: int = 20):
@@ -17,54 +25,55 @@ def create_maze(width: int = 10, length: int = 20):
     return Maze(maze_list)
 
 
-def solve_maze(maze: Maze) -> Tuple[int, int]:
-    solver = MazeSolver(maze, dfs_algorithm)
-    return solver.solve_maze()
+def solve_maze(maze: Maze, algorithm=DFSAlgorithm) -> None:
+    solver = MazeSolver(maze, algorithm)
+    solver.solve_maze()
 
 
 def plot_solution_path(
-    maze: Maze,
-    solution_path: Tuple[int, int],
+    solver: MazeSolver,
     pausing: float = 0.0005,
     marker_size: int = 20,
 ) -> None:
-    maze.matplotlib_view(path=solution_path, pausing=pausing, marker_size=marker_size)
+    solver.view_path(choice="solution", pausing=pausing, marker_size=marker_size)
+    # maze.matplotlib_view(path=solution_path, pausing=pausing, marker_size=marker_size)
 
 
 # full_path
 
 
 def plot_full_algorithm_path(
-    maze: Maze,
+    solver: MazeSolver,
     pausing: float = 0.0005,
     marker_size: int = 20,
 ) -> None:
-    maze.matplotlib_view(
-        path=full_path(maze.width), pausing=pausing, marker_size=marker_size
-    )
+    solver.view_path(choice="full", pausing=pausing, marker_size=marker_size)
 
 
 def main():
     ## 1) Create Mazes
     ## 1a) read_maze via files
-    # maze = read_maze()
+    maze = read_maze("tests/maze_examples/maze_12_6.txt")
 
     ## 1b) create_maze via parameters
-    maze = create_maze(length=20, width=15)
+    # maze = read_maze("maze_examples/maze_60_40.txt")
 
     ## 2) Solve Maze
-    solution_path = solve_maze(maze=maze)
+    # Select algorithm (DFSAlgorithm or BFSAlgorithm)
+
+    maze_solver = MazeSolver(maze=maze, algorithm=DFSAlgorithm)
+    maze_solver.solve_maze()
 
     ## 3) Plot Maze
     # 3a) plot solution path
-    plot_solution_path(maze, solution_path)
+    # plot_solution_path(maze_solver)
 
     # 3b) plot all visited cells
-    # plot_full_algorithm_path(maze)
+    plot_full_algorithm_path(maze_solver)
 
     ## 4) Export Maze
     ## 0-Walls / 1-Cells / 2-Start / 3-End
-    # maze.export_maze()
+    # maze.export_maze("tests/maze_examples/maze_6_3.txt")
 
 
 if __name__ == "__main__":
