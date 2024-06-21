@@ -24,7 +24,8 @@ Example mazes are located in maze/maze_examples
 
 ### Solve Maze
 ```
-solve_maze(maze=maze)
+maze_solver = MazeSolver(maze=maze, algorithm=BFSAlgorithm)
+maze_solver.solve_maze()
 ```
 
 ### Plot Maze

@@ -49,10 +49,10 @@ def plot_full_algorithm_path(
 def main():
     ## 1) Create Mazes
     ## 1a) read_maze via files
-    # maze = read_maze()
+    maze = read_maze()
 
     ## 1b) create_maze via parameters
-    maze = create_maze(width=8, length=15)
+    # maze = create_maze(width=8, length=15)
 
     ## 2) Solve Maze
     # Select algorithm (DFSAlgorithm or BFSAlgorithm)
