@@ -1,9 +1,5 @@
-from maze.maze import (
-    Maze,
-    MazeSolver,
-    BFSAlgorithm,
-    DFSAlgorithm,
-)
+from maze.maze import Maze
+from maze.algorithm import DFSAlgorithm, BFSAlgorithm, MazeSolver
 from maze.maze_factory import DFSMaze
 
 
@@ -53,7 +49,7 @@ def plot_full_algorithm_path(
 def main():
     ## 1) Create Mazes
     ## 1a) read_maze via files
-    maze = read_maze("tests/maze_examples/maze_12_6.txt")
+    maze = read_maze("maze_examples/maze_24_16.txt")
 
     ## 1b) create_maze via parameters
     # maze = read_maze("maze_examples/maze_60_40.txt")
