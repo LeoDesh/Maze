@@ -1,12 +1,9 @@
 from maze.maze import (
     Maze,
     InvalidList,
-    find_value_in_config,
-    MazeSolver,
-    dfs_algorithm,
-    full_path,
-    create_path_direction_dict,
 )
+from maze.maze_utils import find_value_in_config
+from maze.algorithm import DFSAlgorithm, MazeSolver
 import pytest
 
 
@@ -116,25 +113,14 @@ def test_config_cells_end_point(example_maze):
 
 
 def test_maze_solver_dfs(example_maze, solution_path):
-    maze_solver = MazeSolver(example_maze, dfs_algorithm)
-    assert maze_solver.solve_maze() == solution_path
-
-
-def test_full_path(example_sample_full_path):
-    maze = Maze.import_maze("tests/maze_examples/maze_6_3.txt")
-    assert (
-        full_path(maze.width, "tests/maze_examples/route.log")
-        == example_sample_full_path
-    )
+    maze_solver = MazeSolver(example_maze, DFSAlgorithm)
+    maze_solver.solve_maze()
+    assert maze_solver.solution_path == solution_path
 
 
 def test_import_maze(example_maze):
     with pytest.raises(TypeError):
         example_maze.import_maze("tests/maze_examples/maze_fail.txt")
-
-
-def test_path_creation_dict():
-    pass  # create_path_direction_dict
 
 
 # export_maze, split part of matplotview, put single functions in utils file

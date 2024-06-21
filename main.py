@@ -49,15 +49,16 @@ def plot_full_algorithm_path(
 def main():
     ## 1) Create Mazes
     ## 1a) read_maze via files
-    maze = read_maze("maze_examples/maze_24_16.txt")
+    # maze = read_maze()
 
     ## 1b) create_maze via parameters
-    # maze = read_maze("maze_examples/maze_60_40.txt")
+    maze = create_maze(width=8, length=15)
 
     ## 2) Solve Maze
     # Select algorithm (DFSAlgorithm or BFSAlgorithm)
 
-    maze_solver = MazeSolver(maze=maze, algorithm=DFSAlgorithm)
+    maze_solver = MazeSolver(maze=maze, algorithm=BFSAlgorithm)
+    # maze_solver = MazeSolver(maze=maze, algorithm=DFSAlgorithm)
     maze_solver.solve_maze()
 
     ## 3) Plot Maze
@@ -69,7 +70,7 @@ def main():
 
     ## 4) Export Maze
     ## 0-Walls / 1-Cells / 2-Start / 3-End
-    # maze.export_maze("tests/maze_examples/maze_6_3.txt")
+    # maze.export_maze("maze_examples/maze_6_3.txt")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,14 @@ from abc import ABC, abstractmethod
 from maze.maze_utils import (
     subtract_tuples,
     transform_coordinates,
+    remove_coords_from_maze_path,
+    select_direction,
+    opposite_direction,
+    compute_lower_number,
+    compute_upper_number,
+    construct_bfs_path,
 )
-import random
+
 import re
 
 
@@ -318,86 +324,3 @@ class BFSAlgorithm(MazeAlgorithm):
                         ]
                     final_path[coords] = sign
         return final_path
-
-
-def construct_bfs_path(key_index: str, dict_path: Dict[str, List[Tuple[int, int]]]):
-    delimiter = "."
-    if delimiter in key_index:
-        numbers = key_index.split(delimiter)
-        key_indices = [
-            ".".join(number for number in numbers[: i + 1])
-            for i, _ in enumerate(numbers)
-        ]
-        path = []
-        for key in key_indices:
-            path += dict_path[key]
-        return path
-    else:
-        return dict_path[key_index]
-
-
-def compute_lower_number(key: str, key_numbers: Dict[str, int]):
-    value = 0
-    for sub_key, number in key_numbers.items():
-        if len(key) > len(sub_key):
-            if key[0 : len(sub_key)] == sub_key:
-                value += number
-    return value
-
-
-def compute_upper_number(key: str, key_numbers: Dict[str, int]):
-    value = 0
-    for sub_key, number in key_numbers.items():
-        if len(key) >= len(sub_key):
-            if key[0 : len(sub_key)] == sub_key:
-                value += number
-    return value
-
-
-def find_keys(key: str, key_indices: List[str]):
-    return [sub_key for sub_key in key_indices if sub_key[0 : len(key)] == key]
-
-
-def select_direction(
-    end_point: Tuple[int, int], neighbours: Dict[str, Tuple[int, int]]
-):
-    # print(neighbours)
-    rev_dict = {coords: move for move, coords in neighbours.items()}
-    if end_point in rev_dict:
-        return rev_dict[end_point]
-    else:
-        return random.choice(list(neighbours.keys()))
-
-
-def create_path_direction_dict(
-    directions: Dict[str, Tuple[int, int]], path: List[Tuple[int, int]]
-):
-    path_dict = {value: move for move, value in directions.items()}
-    # transformation of coordinates
-    plot_dict = {}
-    # build extern function
-    for index, tup in enumerate(path):
-        if index + 1 < len(path):
-            if path[index + 1] not in plot_dict:
-                plot_dict[tup] = path_dict[subtract_tuples(path[index + 1], tup)]
-            else:
-                plot_dict[tup] = "stuck"
-    return plot_dict
-
-
-def remove_coords_from_maze_path(
-    maze_path: Dict[int, Dict[str, Tuple[int, int]]],
-    current_neighbours: Dict[str, Tuple[int, int]],
-) -> None:
-    key_list = []
-    for values in maze_path.values():
-        for key, coords in current_neighbours.items():
-            if coords in values:
-                key_list.append(key)
-    for key in key_list:
-        del current_neighbours[key]
-
-
-def opposite_direction(direction: str):
-    opposite_directions = {"up": "down", "down": "up", "right": "left", "left": "right"}
-    return opposite_directions[direction]
